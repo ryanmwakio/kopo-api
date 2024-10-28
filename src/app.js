@@ -62,6 +62,13 @@ app.post("/api/transactions", async (req, res) => {
 app.get("/api/transactions", async (req, res) => {
   try {
     const transactions = await Transaction.findAll({ order: [["createdAt", "DESC"]] });
+    for (let i = 0; i < transactions.length; i++) {
+      const account = await Account.findByPk(transactions[i].account_id);
+      
+      transactions[i].dataValues.account = account;
+    }
+
+
     res.json(transactions);
   } catch (error) {
     res.status(500).json({ error: error.message });
