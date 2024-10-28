@@ -1,9 +1,11 @@
 const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const { Account, Transaction } = require("./models");
+var cors = require('cors');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Create a new account
 app.post("/api/accounts", async (req, res) => {
