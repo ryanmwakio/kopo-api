@@ -47,8 +47,13 @@ app.post("/api/transactions", async (req, res) => {
       type,
     });
 
-    if (type === "deposit") account.balance += Number(amount);
-    else if (type === "withdraw") account.balance -= Number(amount);
+    if(type === "deposit") {
+      account.balance = Number(account.balance) + Number(amount);
+      console.log(account.balance);
+    }
+    else if (type === "withdraw"){
+      account.balance = Number(account.balance) - Number(amount);
+    } 
 
     await account.save();
     res.status(201).json(transaction);
