@@ -36,7 +36,7 @@ app.post("/api/transactions", async (req, res) => {
 
     if (!account) return res.status(404).json({ error: "Account not found" });
 
-    if (type === "withdraw" && account.balance < amount) {
+    if (type === "withdraw" && Number(account.balance) < Number(amount)) {
       return res.status(400).json({ error: "Insufficient balance" });
     }
 
@@ -48,8 +48,8 @@ app.post("/api/transactions", async (req, res) => {
     });
 
     // Update account balance
-    if (type === "deposit") account.balance += amount;
-    else if (type === "withdraw") account.balance -= amount;
+    if (type === "deposit") Number(account.balance) += Number(amount);
+    else if (type === "withdraw") Number(account.balance) -= Number(amount);
 
     await account.save();
     res.status(201).json(transaction);
