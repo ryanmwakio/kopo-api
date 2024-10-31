@@ -74,20 +74,13 @@ app.post("/api/transactions", async (req, res) => {
     });
 
     if(type === "deposit") {
-      account.balance = Number(account.balance) + Number(amount);
-      // delete account_balance and replace with amount on db
-      delete transaction.dataValues.account_balance;
-      transaction.dataValues.account_balance = account.balance;
-      transaction.dataValues.amount = Number(transaction.dataValues.amount);
-
+      console.log()
+      account.balance= transaction.dataValues.amount;
       await account.save();
     }
-    else if (type === "withdraw"){
-      account.balance = Number(account.balance) - Number(amount);
-    } 
 
-    await account.save();
     transaction.dataValues.transaction_id = transaction.dataValues.id;
+    transaction.dataValues.amount = Number(transaction.dataValues.amount);
 
     res.status(201).json(transaction);
   } catch (error) {
