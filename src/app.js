@@ -17,9 +17,22 @@ app.post("/api/accounts", async (req, res) => {
   try {
     const { name, balance } = req.body;
     const account = await Account.create({ id: uuidv4(), name, balance });
+    account.dataValues.account_id = account.dataValues.id;
     res.status(201).json(account);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// get specific account
+app.get("/api/accounts/:id", async (req, res) => {
+  try {
+    const account = await Account.findByPk(req.params.id);
+    if (!account) return res.status(404).json({ error: "Account not found" });
+    account.dataValues.account_id = account.dataValues.id;
+    res.json(account);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -27,6 +40,9 @@ app.post("/api/accounts", async (req, res) => {
 app.get("/api/accounts", async (req, res) => {
   try {
     const accounts = await Account.findAll();
+    for (let i = 0; i < accounts.length; i++) {
+      accounts[i].dataValues.account_id = accounts[i].dataValues.id;
+    }
     res.json(accounts);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,13 +71,19 @@ app.post("/api/transactions", async (req, res) => {
 
     if(type === "deposit") {
       account.balance = Number(account.balance) + Number(amount);
-      console.log(account.balance);
+      // delete account_balance and replace with amount on db
+      delete transaction.dataValues.account_balance;
+      transaction.dataValues.account_balance = account.balance;
+      // save account balance
+      await account.save();
     }
     else if (type === "withdraw"){
       account.balance = Number(account.balance) - Number(amount);
     } 
 
     await account.save();
+    transaction.dataValues.transaction_id = transaction.dataValues.id;
+
     res.status(201).json(transaction);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -76,10 +98,23 @@ app.get("/api/transactions", async (req, res) => {
       const account = await Account.findByPk(transactions[i].account_id);
       
       transactions[i].dataValues.account = account;
+      transactions[i].dataValues.transaction_id = transactions[i].dataValues.id;
     }
 
 
     res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// get specific transaction
+app.get("/api/transactions/:id", async (req, res) => {
+  try {
+    const transaction = await Transaction.findByPk(req.params.id);
+    if (!transaction) return res.status(404).json({ error: "Transaction not found" });
+    transaction.dataValues.transaction_id = transaction.dataValues.id;
+    res.json(transaction);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
