@@ -36,8 +36,9 @@ app.get("/api/accounts", async (req, res) => {
 // Create a new transaction
 app.post("/api/transactions", async (req, res) => {
   try {
-    const { account_id, amount, type } = req.body;
+    const { account_id, amount } = req.body;
     const account = await Account.findByPk(account_id);
+    type="deposit";
 
     if (!account) return res.status(404).json({ error: "Account not found" });
 
