@@ -18,6 +18,7 @@ app.post("/api/accounts", async (req, res) => {
     const { name, balance } = req.body;
     const account = await Account.create({ id: uuidv4(), name, balance });
     account.dataValues.account_id = account.dataValues.id;
+    account.balance = Number(account.balance);
     res.status(201).json(account);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -30,6 +31,7 @@ app.get("/api/accounts/:id", async (req, res) => {
     const account = await Account.findByPk(req.params.id);
     if (!account) return res.status(404).json({ error: "Account not found" });
     account.dataValues.account_id = account.dataValues.id;
+    account.balance = Number(account.balance);
     res.json(account);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -42,7 +44,9 @@ app.get("/api/accounts", async (req, res) => {
     const accounts = await Account.findAll();
     for (let i = 0; i < accounts.length; i++) {
       accounts[i].dataValues.account_id = accounts[i].dataValues.id;
+      accounts[i].balance = Number(accounts[i].balance);
     }
+
     res.json(accounts);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -74,7 +78,8 @@ app.post("/api/transactions", async (req, res) => {
       // delete account_balance and replace with amount on db
       delete transaction.dataValues.account_balance;
       transaction.dataValues.account_balance = account.balance;
-      // save account balance
+      transaction.dataValues.amount = Number(transaction.dataValues.amount);
+
       await account.save();
     }
     else if (type === "withdraw"){
@@ -99,6 +104,7 @@ app.get("/api/transactions", async (req, res) => {
       
       transactions[i].dataValues.account = account;
       transactions[i].dataValues.transaction_id = transactions[i].dataValues.id;
+      transactions[i].dataValues.amount = Number(transactions[i].dataValues.amount);
     }
 
 
@@ -114,6 +120,7 @@ app.get("/api/transactions/:id", async (req, res) => {
     const transaction = await Transaction.findByPk(req.params.id);
     if (!transaction) return res.status(404).json({ error: "Transaction not found" });
     transaction.dataValues.transaction_id = transaction.dataValues.id;
+    transaction.dataValues.amount = Number(transaction.dataValues.amount);
     res.json(transaction);
   } catch (error) {
     res.status(500).json({ error: error.message });
