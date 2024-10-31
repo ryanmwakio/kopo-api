@@ -7,6 +7,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// ping endpoint
+app.get("/ping", (req, res) => {
+  res.json({ message: "pong" });
+});
+
 // Create a new account
 app.post("/api/accounts", async (req, res) => {
   try {
