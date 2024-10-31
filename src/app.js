@@ -57,14 +57,12 @@ app.get("/api/accounts", async (req, res) => {
 app.post("/api/transactions", async (req, res) => {
   try {
     const { account_id, amount } = req.body;
-    const account = await Account.findByPk(account_id);
-    type="deposit";
-
-    if (!account) return res.status(404).json({ error: "Account not found" });
-
-    if (type === "withdraw" && Number(account.balance) < Number(amount)) {
-      return res.status(400).json({ error: "Insufficient balance" });
+    let account=null;
+    account = await Account.findByPk(account_id);
+    if (!account){
+      account = await Account.create({ id: account_id, name: "New Account"+Math.floor(Math.random() * 1000), balance: 0 });
     }
+    type="deposit";
 
     const transaction = await Transaction.create({
       id: uuidv4(),
@@ -74,8 +72,10 @@ app.post("/api/transactions", async (req, res) => {
     });
 
     if(type === "deposit") {
-      console.log()
-      account.balance= transaction.dataValues.amount;
+      let balance = Number(account.balance);
+      let newBalance = balance + Number(amount);
+    
+      account.balance =newBalance.toString();
       await account.save();
     }
 
