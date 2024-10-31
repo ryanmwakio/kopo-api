@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 // ping endpoint
-app.get("/ping", (req, res) => {
+app.get("/api/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
